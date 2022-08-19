@@ -27,6 +27,7 @@ import {
 
 import { useUI } from "../../hooks"
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 
 export const SideMenu = () => {
@@ -34,10 +35,18 @@ export const SideMenu = () => {
     const router = useRouter()
     const { isMenuOpen, toggleSideMenu } = useUI()
 
+    const [searchTerm, setSearchTerm] = useState('')
 
     const navigateTo = ( url:string ) => {
         router.push(url)
         toggleSideMenu()
+    }
+
+    const onSearchTerm = () => {
+        if( searchTerm.trim().length <= 0 ){
+            return
+        }
+        navigateTo(`/search/${ searchTerm }`)
     }
 
     return (
@@ -53,12 +62,17 @@ export const SideMenu = () => {
 
                     <ListItem>
                         <Input
+                            autoFocus={ true }
                             type='text'
+                            name="searchTerm"
+                            value={searchTerm}
+                            onChange={ ({ target }) => setSearchTerm( target.value ) }
+                            onKeyPress = { (e)=> e.key === 'Enter' ? onSearchTerm() : null }
                             placeholder="Buscar..."
                             endAdornment={
                                 <InputAdornment position="end">
                                     <IconButton
-                                        aria-label="toggle password visibility"
+                                        onClick={onSearchTerm}
                                     >
                                         <SearchOutlined />
                                     </IconButton>
