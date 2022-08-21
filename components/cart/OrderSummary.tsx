@@ -1,36 +1,42 @@
 import { Grid, Typography } from "@mui/material"
+import { useCart } from '../../hooks/useCart';
+import { currency } from "../../utils";
 
 
 export const OrderSummary = () => {
-  return (
-    <Grid container>
-        <Grid item xs={6}>
-            <Typography>No. Productos</Typography>
-        </Grid>
-        <Grid item xs={6} display="flex" justifyContent="end">
-            <Typography>4</Typography>
-        </Grid>
 
-        <Grid item xs={6}>
-            <Typography>Subtotal</Typography>
-        </Grid>
-        <Grid item xs={6} display="flex" justifyContent="end">
-            <Typography>{`$${ 163.56 }`}</Typography>
-        </Grid>
+    const { numberOfItems, subtotal, tax, total } = useCart()
 
-        <Grid item xs={6}>
-            <Typography>Inpuestos (15%)</Typography>
-        </Grid>
-        <Grid item xs={6} display="flex" justifyContent="end">
-            <Typography>{`${ 35.2 }`}</Typography>
-        </Grid>
 
-        <Grid item xs={6} sx={{ mt: 2 }}>
-            <Typography variant="subtitle1">Total: </Typography>
+    return (
+        <Grid container>
+            <Grid item xs={6}>
+                <Typography>No. Productos</Typography>
+            </Grid>
+            <Grid item xs={6} display="flex" justifyContent="end">
+                <Typography>{ numberOfItems } { numberOfItems > 1 ? 'Productos' : 'Producto' }</Typography>
+            </Grid>
+
+            <Grid item xs={6}>
+                <Typography>Subtotal</Typography>
+            </Grid>
+            <Grid item xs={6} display="flex" justifyContent="end">
+                <Typography>{ currency.formatCurrency( subtotal ) }</Typography>
+            </Grid>
+
+            <Grid item xs={6}>
+                <Typography>Inpuestos ({ Number(process.env.NEXT_PUBLIC_TAX_RATE) * 100 }%)</Typography>
+            </Grid>
+            <Grid item xs={6} display="flex" justifyContent="end">
+                <Typography>{ currency.formatCurrency( tax ) }</Typography>
+            </Grid>
+
+            <Grid item xs={6} sx={{ mt: 2 }}>
+                <Typography variant="subtitle1">Total: </Typography>
+            </Grid>
+            <Grid item xs={6} sx={{ mt: 2 }} display="flex" justifyContent="end">
+                <Typography variant="subtitle1">{ currency.formatCurrency( total ) }</Typography>
+            </Grid>
         </Grid>
-        <Grid item xs={6} sx={{ mt: 2 }} display="flex" justifyContent="end">
-            <Typography variant="subtitle1">{`$${ 186.58 }`}</Typography>
-        </Grid>
-    </Grid>
-  )
+    )
 }

@@ -6,6 +6,7 @@ import { AppBar, Badge, Box, Button, IconButton, Input, InputAdornment, Link, To
 import { ClearOutlined, MenuOutlined, SearchOutlined, ShoppingCartOutlined } from "@mui/icons-material"
 import { useRouter } from "next/router"
 import { useUI } from "../../hooks"
+import { useCart } from '../../hooks/useCart';
 
 
 
@@ -15,6 +16,7 @@ export const Navbar = () => {
     const { pathname } = router
 
     const { toggleSideMenu } = useUI()
+    const { numberOfItems } =useCart()
 
     const [searchTerm, setSearchTerm] = useState('')
     const [isSearchVisible, setIsSearchVisible] = useState(false)
@@ -106,15 +108,17 @@ export const Navbar = () => {
                 <NextLink href="/cart" passHref>
                     <Link>
                         <IconButton>
-                            <Badge badgeContent={2} color="secondary">
+                            <Badge badgeContent={ numberOfItems > 9 ? '9+' : numberOfItems } color="secondary">
                                 <ShoppingCartOutlined />
                             </Badge>
                         </IconButton>
                     </Link>
                 </NextLink>
-                <Button onClick={toggleSideMenu}>
-                    Menú
-                    {/* <MenuOutlined /> */}
+                
+                <Button
+                    onClick={toggleSideMenu}
+                >
+                    <MenuOutlined />
                 </Button>
 
             </Toolbar>
