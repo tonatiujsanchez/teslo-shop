@@ -1,17 +1,16 @@
+import { FC } from 'react';
+
 import NextLink from 'next/link'
 
 import { Grid, Link, Typography, Card, CardActionArea, CardMedia, Box, Button } from '@mui/material';
-import { initialData } from '../../database/products';
+
+import { useCart } from '../../hooks/useCart'
+
 import { ItemCounter } from '../ui';
-import { FC } from 'react';
+
+import { ICartProduct } from '../../interfaces';
 
 
-const productsInCart = [
-    initialData.products[0],
-    initialData.products[1],
-    initialData.products[2],
-    initialData.products[3],
-]
 
 interface Props {
     editable: boolean
@@ -19,22 +18,29 @@ interface Props {
 
 export const CartList: FC<Props> = ({ editable }) => {
 
+    const { cart, updateCartQuantity, removeCartProduct } = useCart()
+
+
+
+    const onUpdatedQuantiry = ( product: ICartProduct, newQuantiry: number ) => {
+        product.quantity = newQuantiry
+        updateCartQuantity(product)
+    }
 
 
     return (
         <>
             {
-                productsInCart.map(product => {
+                cart.map( product => {
 
                     return (
-                        <Grid container spacing={2} sx={{ mb: 1 }} key={product.slug}>
+                        <Grid container spacing={2} sx={{ mb: 1 }} key={product.slug + product.size}>
                             <Grid item xs={3}>
-                                {/* TODO: llevar a la pagina del producto */}
-                                <NextLink href="/product/slug" passHref>
+                                <NextLink href={`/product/${ product.slug }`} passHref>
                                     <Link>
                                         <CardActionArea>
                                             <CardMedia
-                                                image={`/products/${product.images[0]}`}
+                                                image={`/products/${product.image}`}
                                                 component="img"
                                                 sx={{ borderRadius: '5px' }} />
                                         </CardActionArea>
@@ -44,12 +50,18 @@ export const CartList: FC<Props> = ({ editable }) => {
                             <Grid item xs={7}>
                                 <Box display="flex" flexDirection="column">
                                     <Typography variant='body1'>{product.title}</Typography>
-                                    <Typography variant='body1'>Talla: <strong>M</strong></Typography>
+                                    <Typography variant='body1'>Talla: <strong>{ product.size }</strong></Typography>
 
                                     {
                                         editable
-                                            ? <ItemCounter />
-                                            : <Typography>Cantidad: <strong>{3}</strong></Typography>
+                                            ? <ItemCounter 
+                                                currentValue={ product.quantity } 
+                                                maxValue={ 10 } 
+                                                onUpdatedQuantiry={ (selectedQuantiry) =>{
+                                                    onUpdatedQuantiry( product, selectedQuantiry )
+                                                }}                                                
+                                             />
+                                            : <Typography>Cantidad: <strong>{product.quantity}</strong></Typography>
                                     }
 
                                 </Box>
@@ -58,7 +70,10 @@ export const CartList: FC<Props> = ({ editable }) => {
                                 <Typography>{`$${product.price}`}</Typography>
                                 {
                                     editable &&
-                                    <Button variant='text' color='secondary'>
+                                    <Button
+                                        onClick={ ()=> removeCartProduct( product ) }
+                                        variant='text'
+                                        color='secondary'>
                                         Remover
                                     </Button>
                                 }
