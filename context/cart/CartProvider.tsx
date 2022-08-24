@@ -35,8 +35,8 @@ export const CartProvider: FC<Props> = ({ children }) => {
     useEffect(()=>{
         
         try {
-            const cookiesCart = Cookie.get('teslo-shop-cart') 
-                ? JSON.parse( Cookie.get('teslo-shop-cart')! ) 
+            const cookiesCart = Cookie.get('tesloshop_cart') 
+                ? JSON.parse( Cookie.get('tesloshop_cart')! ) 
                 : []
             
             dispatch({type: '[Cart] - Load cart from cookies | storage', payload: cookiesCart}) 
@@ -48,7 +48,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
 
     useEffect(()=>{
         if(state.cart.length > 0){ 
-            Cookie.set('teslo-shop-cart', JSON.stringify(state.cart))
+            Cookie.set('tesloshop_cart', JSON.stringify(state.cart))
         }
     },[state.cart])
 
