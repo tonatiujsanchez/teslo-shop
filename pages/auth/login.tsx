@@ -1,16 +1,17 @@
 import { useState } from 'react';
+
 import NextLink from 'next/link'
+import { useRouter } from 'next/router';
 
 import { Box, Grid, Typography, TextField, Button, Link, Chip, CircularProgress } from '@mui/material';
 import { ErrorOutline } from '@mui/icons-material';
 
 import { useForm } from "react-hook-form";
 
+import useAuth from '../../hooks/useAuth';
+
 import { AuthLayout } from "../../components/layouts"
 import { validations } from '../../utils';
-import { tesloApi } from '../../api';
-import useAuth from '../../hooks/useAuth';
-import { useRouter } from 'next/router';
 
 
 type FormData = {
@@ -46,8 +47,8 @@ const LoginPage = () => {
 
         setLoading(false)
 
-        // TODO: Navegar a la pantalla que el usurio pide
-        router.replace('/')
+        const destination = router.query.p?.toString() || '/'
+        router.replace(destination)
 
     }
 
@@ -119,7 +120,7 @@ const LoginPage = () => {
 
                         <Grid item xs={12} display="flex" justifyContent="end" gap={1}>
                             <Typography>¿No tienes una cuenta?</Typography>
-                            <NextLink href="/auth/register" passHref>
+                            <NextLink href={router.query.p ? `/auth/register?p=${ router.query.p }` : '/auth/register'} passHref>
                                 <Link underline='always'>
                                     Registrate
                                 </Link>

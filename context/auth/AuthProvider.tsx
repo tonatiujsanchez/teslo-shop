@@ -7,6 +7,7 @@ import { tesloApi } from '../../api';
 
 import { IUser } from '../../interfaces';
 import axios from 'axios';
+import { useRouter } from 'next/router';
 
 
 interface Props {
@@ -28,6 +29,7 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
 
     const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE)
+    const router = useRouter()
 
 
     useEffect(()=>{
@@ -35,6 +37,8 @@ export const AuthProvider: FC<Props> = ({ children }) => {
     },[])
 
     const checkToken = async() => {
+
+            if( !Cookies.get('tesloshop_token') ){ return }
         
             try {
 
@@ -101,6 +105,12 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
     }
 
+    const logout = () => {
+        Cookies.remove('tesloshop_token')
+        Cookies.remove('tesloshop_cart')
+        router.reload()
+    }
+
 
     return (
         <AuthContext.Provider value={{
@@ -108,6 +118,7 @@ export const AuthProvider: FC<Props> = ({ children }) => {
             // Methods
             loginUser,
             registerUser,
+            logout,
         }}>
             {children}
         </AuthContext.Provider>

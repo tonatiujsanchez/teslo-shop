@@ -1,10 +1,32 @@
 import NextLink from 'next/link'
-import { ShopLayout } from '../../components/layouts';
 import { Box, Button, Card, CardContent, Divider, Grid, Link, Typography } from '@mui/material';
+
+import { useCart } from '../../hooks/useCart';
+
+import { ShopLayout } from '../../components/layouts';
 import { CartList, OrderSummary } from '../../components/cart';
+import { FullScreenLoading } from '../../components/ui';
+
+import { countries } from '../../utils';
+import { useMemo } from 'react';
 
 
 const SummaryPage = () => {
+
+    const { numberOfItems, shippingAddress } = useCart()
+
+    if( !shippingAddress ){
+        return (
+            <ShopLayout title="Resumen de la Compra" pageDescription="Resumen de la orden">
+                <FullScreenLoading />
+            </ShopLayout>
+        )
+    }
+
+    const {  firstName, lastName, address, address2 = '', zip, city, phone } = shippingAddress
+
+    const country = countries.find( country => country.code === shippingAddress?.country )
+
     return (
         <ShopLayout title="Resumen de la Compra" pageDescription="Resumen de la orden">
             <Typography variant="h1" component="h1">Resumen de la orden</Typography>
@@ -16,7 +38,7 @@ const SummaryPage = () => {
                 <Grid item xs={ 12 } sm={ 5 }>
                     <Card className='summary-card'>
                         <CardContent>
-                            <Typography variant='h2'>Resumen (3 productos)</Typography>
+                            <Typography variant='h2'>Resumen ( { numberOfItems } { numberOfItems > 1 ? 'Productos' : 'Producto' } )</Typography>
                             <Divider sx={{my:1}} />
                             
                             <Box display="flex" justifyContent="space-between">
@@ -28,11 +50,11 @@ const SummaryPage = () => {
                                 </NextLink>
                             </Box>
 
-                            <Typography>Tonatiuj Sánchez</Typography>
-                            <Typography>3254 Calle y Colonia conocidos</Typography>
-                            <Typography>Tlapa de Comonfort, Guerrero</Typography>
-                            <Typography>México</Typography>
-                            <Typography>+52 254 252 36 58</Typography>
+                            <Typography>{ firstName }{' '}{ lastName }</Typography>
+                            <Typography>{ address } { address2 ? `/ ${address2}` : '' }</Typography>
+                            <Typography>{ city },{' '}{ zip }</Typography>
+                            <Typography>{ country?.name }</Typography>
+                            <Typography>{ phone }</Typography>
 
                             <Divider sx={{ my:1 }} />
 

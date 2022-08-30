@@ -59,8 +59,8 @@ const RegisterPage = () => {
         setLoading(false)
         setErrorMessage('')
 
-        // TODO: Navegar a la pantalla que el usurio pide
-        router.replace('/')
+        const destination = router.query.p?.toString() || '/'
+        router.replace(destination)
 
     }
 
@@ -159,7 +159,7 @@ const RegisterPage = () => {
 
                         <Grid item xs={12} display="flex" justifyContent="end" gap={1}>
                             <Typography>Ya tienes una cuenta</Typography>
-                            <NextLink href="/auth/login" passHref>
+                            <NextLink href={router.query.p ? `/auth/login?p=${ router.query.p }` : '/auth/login'}  passHref>
                                 <Link underline='always'>
                                     Inicia Sesión
                                 </Link>
