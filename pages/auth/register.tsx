@@ -10,7 +10,6 @@ import { ErrorOutline } from '@mui/icons-material';
 import { AuthLayout } from "../../components/layouts"
 
 import { validations } from '../../utils';
-import { tesloApi } from '../../api';
 import { useRouter } from 'next/router';
 
 

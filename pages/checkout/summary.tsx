@@ -29,7 +29,7 @@ const SummaryPage = () => {
 
     return (
         <ShopLayout title="Resumen de la Compra" pageDescription="Resumen de la orden">
-            <Typography variant="h1" component="h1">Resumen de la orden</Typography>
+            <Typography variant="h1" component="h1" sx={{ mb: 2 }}>Resumen de la orden</Typography>
 
             <Grid container>
                 <Grid item xs={ 12 } sm={ 7 }>

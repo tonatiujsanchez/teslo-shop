@@ -1,13 +1,16 @@
 import { FC, useReducer, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
+import { useSession, signIn, signOut } from "next-auth/react"
+
+
+import axios from 'axios';
 import Cookies from 'js-cookie';
 
 import { AuthContext, authReducer } from './';
 import { tesloApi } from '../../api';
 
 import { IUser } from '../../interfaces';
-import axios from 'axios';
-import { useRouter } from 'next/router';
 
 
 interface Props {
@@ -30,11 +33,19 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
     const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE)
     const router = useRouter()
-
+    const { data, status } = useSession()
 
     useEffect(()=>{
-        checkToken()
-    },[])
+        if(status === 'authenticated'){
+            console.log({user: data.user});
+            
+            //TODO: dispatch({ type: '[Auth] - Login', payload: data.user as IUser })
+        }   
+    },[status, data])
+
+    // useEffect(()=>{
+    //     checkToken()
+    // },[])
 
     const checkToken = async() => {
 
@@ -108,6 +119,17 @@ export const AuthProvider: FC<Props> = ({ children }) => {
     const logout = () => {
         Cookies.remove('tesloshop_token')
         Cookies.remove('tesloshop_cart')
+
+        // Remove cart
+        Cookies.remove('tesloshop_firstName')
+        Cookies.remove('tesloshop_lastName')
+        Cookies.remove('tesloshop_address')
+        Cookies.remove('tesloshop_address2')
+        Cookies.remove('tesloshop_zip')
+        Cookies.remove('tesloshop_city')
+        Cookies.remove('tesloshop_country')
+        Cookies.remove('tesloshop_phone')
+
         router.reload()
     }
 
