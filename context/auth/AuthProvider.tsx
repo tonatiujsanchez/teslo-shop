@@ -1,7 +1,7 @@
 import { FC, useReducer, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 
 
 import axios from 'axios';
@@ -39,7 +39,7 @@ export const AuthProvider: FC<Props> = ({ children }) => {
         if(status === 'authenticated'){
             console.log({user: data.user});
             
-            //TODO: dispatch({ type: '[Auth] - Login', payload: data.user as IUser })
+            dispatch({ type: '[Auth] - Login', payload: data.user as IUser })
         }   
     },[status, data])
 
@@ -117,10 +117,10 @@ export const AuthProvider: FC<Props> = ({ children }) => {
     }
 
     const logout = () => {
-        Cookies.remove('tesloshop_token')
-        Cookies.remove('tesloshop_cart')
-
         // Remove cart
+        Cookies.remove('tesloshop_cart')
+        
+        // Remove address
         Cookies.remove('tesloshop_firstName')
         Cookies.remove('tesloshop_lastName')
         Cookies.remove('tesloshop_address')
@@ -129,8 +129,11 @@ export const AuthProvider: FC<Props> = ({ children }) => {
         Cookies.remove('tesloshop_city')
         Cookies.remove('tesloshop_country')
         Cookies.remove('tesloshop_phone')
+        
+        signOut()
 
-        router.reload()
+        // router.reload()
+        // Cookies.remove('tesloshop_token')
     }
 
 
