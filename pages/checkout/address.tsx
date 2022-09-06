@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import { useCart } from '../../hooks/useCart';
+import { useState, useEffect } from 'react';
 
 
 
@@ -29,7 +30,7 @@ const getAddressFromCookies = (): FormData => {
         address2 : Cookies.get('tesloshop_address2')  || '',
         zip      : Cookies.get('tesloshop_zip')       || '',
         city     : Cookies.get('tesloshop_city')      || '',
-        country  : Cookies.get('tesloshop_country')   || 'MEX',
+        country  : Cookies.get('tesloshop_country')   || countries[0].code,
         phone    : Cookies.get('tesloshop_phone')     || '',
     }
 }
@@ -39,10 +40,20 @@ const AddressPage = () => {
 
     const router = useRouter()
     const { updateAddress } = useCart() 
+    const [country, setCountry] = useState<string>(countries[0].code)
+
 
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
         defaultValues: getAddressFromCookies()
     })
+
+    useEffect(()=>{
+        if( Cookies.get('tesloshop_country') ){
+            setCountry( Cookies.get('tesloshop_country') || countries[0].code )
+        }
+    },[])
+    
+
 
     const onSubmitAddress = (data: FormData) => {
         
@@ -51,6 +62,12 @@ const AddressPage = () => {
         router.push('/checkout/summary')
 
     }
+
+    
+    
+    // if( !getAddressFromCookies() ){
+    //     return <></>
+    // }
 
     return (
         <ShopLayout title={"Direcciones"} pageDescription={"Confirmar dirección del destino"}>
@@ -132,15 +149,14 @@ const AddressPage = () => {
                         />
                     </Grid>
 
-
                     <Grid item xs={12} sm={6}>
                         <FormControl fullWidth >
                             <TextField
-                                key={ Cookies.get('tesloshop_country') || countries[0].code }
+                                key={ country }
                                 select
                                 variant="filled"
                                 label="País"
-                                defaultValue={ Cookies.get('tesloshop_country') || countries[0].code }
+                                defaultValue={ country }
                                 {...register('country', {
                                     required: 'Este campo es requerido',
                                 })}

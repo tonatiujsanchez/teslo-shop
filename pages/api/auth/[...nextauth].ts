@@ -5,6 +5,7 @@ import { dbUsers } from "../../../database";
 
 
 
+
 export default NextAuth({
     // Configure one or more authentication providers
     providers: [
@@ -18,7 +19,6 @@ export default NextAuth({
             },
             async authorize(credentials){
                 console.log({ credentials });
-                // return { name: 'Ton', correo: 'ton@gmail.com', role:'admin' }
                 return await dbUsers.checkEmailPassword( credentials!.email, credentials!.password )
             }
 
@@ -32,12 +32,21 @@ export default NextAuth({
 
     ],
     
+    // custom pages
+    pages: {
+        signIn: '/auth/login',
+        newUser: '/auth/register',
+    },
 
     // Callbacks
     jwt: {
         // secret: process.env.JWT_SECRET_SEED, //Deprecated
     },
-
+    session: {
+        maxAge: 2592000, //cada 30d
+        strategy: 'jwt',
+        updateAge: 86400 //Cada dia
+    },
     callbacks: {
         async jwt({ token, account, user }){
             // console.log({ token, account, user });
@@ -48,7 +57,7 @@ export default NextAuth({
                 switch (account.type) {
 
                     case 'oauth':
-                        // TODO: Crear usuario o verificar si exiteen la DB 
+                        token.user = await dbUsers.oAuthToDBUser( user?.email || '', user?.name || '' ) 
                         break;
                 
                     case 'credentials':
@@ -67,7 +76,6 @@ export default NextAuth({
             session.accessToken = token.access_token
             session.user = token.user as any
 
-            
             return session
         }
 

@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import NextLink from 'next/link'
 import { Box, Button, Card, CardContent, Divider, Grid, Link, Typography } from '@mui/material';
 
@@ -8,12 +9,20 @@ import { CartList, OrderSummary } from '../../components/cart';
 import { FullScreenLoading } from '../../components/ui';
 
 import { countries } from '../../utils';
-import { useMemo } from 'react';
+import Cookies from "js-cookie";
+import { useRouter } from 'next/router';
 
 
 const SummaryPage = () => {
 
+    const router = useRouter()
     const { numberOfItems, shippingAddress } = useCart()
+
+    useEffect(()=>{
+        if( !Cookies.get('tesloshop_firstName') ){
+            router.push('/checkout/address')
+        }
+    },[router])
 
     if( !shippingAddress ){
         return (

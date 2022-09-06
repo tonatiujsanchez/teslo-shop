@@ -4,7 +4,7 @@ import Cookie from 'js-cookie'
 
 import { ICartProduct } from '../../interfaces';
 import { CartContext, cartReducer } from './';
-
+import { countries } from "../../utils"
 
 interface Props {
     children: JSX.Element
@@ -85,7 +85,7 @@ export const CartProvider: FC<Props> = ({ children }) => {
             address2 : Cookie.get('tesloshop_address2')  || '',
             zip      : Cookie.get('tesloshop_zip')       || '',
             city     : Cookie.get('tesloshop_city')      || '',
-            country  : Cookie.get('tesloshop_country')   || 'MEX',
+            country  : Cookie.get('tesloshop_country')   || countries[0].code,
             phone    : Cookie.get('tesloshop_phone')     || '',
         }
         dispatch({ type: '[Cart] - Load address from Cookies', payload: shippingAddress })

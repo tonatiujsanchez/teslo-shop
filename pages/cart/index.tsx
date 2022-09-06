@@ -21,7 +21,7 @@ const CartPage = () => {
 
 
     return (
-        <ShopLayout title={`Carrito - ${ cart.length }`} pageDescription="Carrito de compras de la tienda">
+        <ShopLayout title={`Carrito - ${ cart.length || '0' }`} pageDescription="Carrito de compras de la tienda">
 
             {
                 isLoaded && cart.length > 0 &&
