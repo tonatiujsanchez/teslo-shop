@@ -9,29 +9,30 @@ import { useCart } from '../../hooks/useCart'
 import { ItemCounter } from '../ui';
 
 import { ICartProduct } from '../../interfaces';
+import { IOrderItem } from '../../interfaces';
 
 
 
 interface Props {
-    editable: boolean
+    editable?: boolean
+    products?: IOrderItem[]
 }
 
-export const CartList: FC<Props> = ({ editable }) => {
+export const CartList: FC<Props> = ({ editable, products }) => {
 
     const { cart, updateCartQuantity, removeCartProduct } = useCart()
-
-
 
     const onUpdatedQuantiry = ( product: ICartProduct, newQuantiry: number ) => {
         product.quantity = newQuantiry
         updateCartQuantity(product)
     }
 
+    const productsToShow = products ? products : cart
 
     return (
         <>
             {
-                cart.map( product => {
+                productsToShow.map( product => {
 
                     return (
                         <Grid container spacing={2} sx={{ mb: 1 }} key={product.slug + product.size}>
@@ -58,7 +59,7 @@ export const CartList: FC<Props> = ({ editable }) => {
                                                 currentValue={ product.quantity } 
                                                 maxValue={ 10 } 
                                                 onUpdatedQuantiry={ (selectedQuantiry) =>{
-                                                    onUpdatedQuantiry( product, selectedQuantiry )
+                                                    onUpdatedQuantiry( product as ICartProduct, selectedQuantiry )
                                                 }}                                                
                                              />
                                             : <Typography>Cantidad: <strong>{product.quantity}</strong></Typography>
@@ -71,7 +72,7 @@ export const CartList: FC<Props> = ({ editable }) => {
                                 {
                                     editable &&
                                     <Button
-                                        onClick={ ()=> removeCartProduct( product ) }
+                                        onClick={ ()=> removeCartProduct( product as ICartProduct ) }
                                         variant='text'
                                         color='secondary'
                                     >
