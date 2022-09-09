@@ -32,12 +32,11 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
 
     const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE)
-    const router = useRouter()
+    // const router = useRouter()
     const { data, status } = useSession()
 
     useEffect(()=>{
         if(status === 'authenticated'){
-            console.log({user: data.user});
             
             dispatch({ type: '[Auth] - Login', payload: data.user as IUser })
         }   

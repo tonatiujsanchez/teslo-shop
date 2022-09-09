@@ -1,10 +1,13 @@
 import { FC, useEffect, useReducer } from 'react';
 
 import Cookie from 'js-cookie'
+import axios from 'axios';
 
-import { ICartProduct } from '../../interfaces';
 import { CartContext, cartReducer } from './';
+
+import { ICartProduct, IOrder, ShippingAddress } from '../../interfaces';
 import { countries } from "../../utils"
+import { tesloApi } from '../../api';
 
 interface Props {
     children: JSX.Element
@@ -20,18 +23,6 @@ export interface CartState {
 
     shippingAddress?: ShippingAddress
 }
-
-export interface ShippingAddress {
-    firstName: string
-    lastName: string
-    address: string
-    address2?: string
-    zip: string
-    city: string
-    country: string
-    phone: string
-}
-
 
 const CART_INITIAL_STATE: CartState = {
     isLoaded: false,
@@ -160,6 +151,52 @@ export const CartProvider: FC<Props> = ({ children }) => {
         dispatch({ type: '[Cart] - Update address', payload: newAddress })
     }
 
+    const createOrder = async():Promise<{ hasError:boolean; message: string }> => {
+
+
+        if( !state.shippingAddress ){
+            throw new Error("No hay dirección de entrega");
+        }
+
+        const body: IOrder = {
+            orderItems: state.cart.map( product => ({ ...product, size: product.size! }) ),
+            shippingAddress: state.shippingAddress,
+
+            numberOfItems: state.numberOfItems,
+            subtotal: state.subtotal,
+            tax: state.tax,
+            total: state.total,
+
+            isPaid: false,
+        }
+
+        try {
+            
+            const { data } = await tesloApi.post<IOrder>('/orders', body)
+            dispatch({ type: '[Cart] - Order complete' })
+
+            return {
+                hasError: false,
+                message: data._id!,
+            }
+
+        } catch (error) {
+
+            if(axios.isAxiosError(error)){
+                const { message } = error.response?.data as {message : string}
+                return {
+                    hasError: true,
+                    message: message
+                }
+            }
+
+            return {
+                hasError: true,
+                message: 'Hubo un error inesperado, comuniquese con soporte',
+            }
+        }
+    }
+
     return (
         <CartContext.Provider value={{
             ...state,
@@ -168,7 +205,10 @@ export const CartProvider: FC<Props> = ({ children }) => {
             addNewProductToCart,
             updateCartQuantity,
             removeCartProduct,
-            updateAddress
+            updateAddress,
+
+            // Orders
+            createOrder
         }}>
             {children}
         </CartContext.Provider>
