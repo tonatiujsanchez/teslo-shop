@@ -3,7 +3,7 @@ import { CreditCardOffOutlined } from '@mui/icons-material'
 import { Grid, Card, CardContent, Typography } from '@mui/material'
 
 interface Props {
-    title: string
+    title: number
     subtitle: string
     icon: JSX.Element
 }

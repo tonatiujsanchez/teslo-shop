@@ -8,11 +8,11 @@ export { default } from "next-auth/middleware"
 // import * as jose from 'jose';
 // import { jwt } from './utils'; //NO funciona en la nueva version de Next
 
-export async function middleware(req: NextRequest) {
+export async function middleware( req: NextRequest ) {
 
 // =============== PROTECCION DE RUTAS - NEXTAUTH ============ 
 
-    const session = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+    const session:any = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
     const { protocol, host, pathname } = req.nextUrl
     
 
@@ -24,6 +24,39 @@ export async function middleware(req: NextRequest) {
 
         return NextResponse.next()
 
+    }
+
+
+
+    if (req.nextUrl.pathname.startsWith('/admin') ) {
+        if(!session){            
+            return NextResponse.redirect(`${protocol}//${host}/auth/login?p=${pathname}`)
+        }
+
+        const validRoles = ['admin']
+
+        if( !validRoles.includes( session.user.role )){
+            return NextResponse.redirect(`${protocol}//${host}`)
+        }
+
+        return NextResponse.next()
+    }
+
+
+
+    if (req.nextUrl.pathname.startsWith('/api/admin')) {
+
+        if(!session){            
+            return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url))
+        }
+        
+        const validRoles = ['admin']
+
+        if( !validRoles.includes( session.user.role ) ){
+            return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url))
+        }
+
+        return NextResponse.next()
     }
 
 // =============== PROTECCION DE RUTAS - TRADICIONAL ============ 
@@ -59,9 +92,17 @@ export async function middleware(req: NextRequest) {
 export const config = {
     matcher: [
         '/checkout/:path*',
+        '/admin/:path*',
+        '/api/admin/:path*',
     ]
 }
 
-// export const config = {
-//     matcher: ['/checkout/address', '/checkout/summary']
-// };
+
+
+
+
+
+
+
+
+
