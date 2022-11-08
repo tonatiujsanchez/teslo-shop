@@ -23,7 +23,6 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
             return res.status(400).json({ message: 'Endpoint NO existe' })
     }
 
-
 }
 
 

@@ -4,7 +4,7 @@ import { currency } from "../../utils";
 import { NextPage } from 'next';
 
 interface Props {
-    orderValues: {
+    orderValues?: {
         numberOfItems: number
         subtotal: number
         tax: number
