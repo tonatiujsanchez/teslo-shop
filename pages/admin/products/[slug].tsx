@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import { ChangeEvent, FC, useEffect, useState } from 'react';
 import { GetServerSideProps } from 'next'
 import { useForm } from 'react-hook-form'
 
@@ -38,9 +38,29 @@ interface Props {
 
 const ProductAdminPage:FC<Props> = ({ product }) => {
 
-     const { register, handleSubmit, formState:{ errors }, getValues, setValue } = useForm<FormData>({
+    const [newTagValue, setNewTagValue] = useState('')
+
+     const { register, handleSubmit, formState:{ errors }, getValues, setValue, watch } = useForm<FormData>({
         defaultValues: product
      })
+
+     useEffect(()=>{
+        const subscription = watch( ( value, { name, type } ) => {
+            if( name === 'title' ){
+                const newSlug = value.title?.trim()
+                    .replaceAll(' ','_')
+                    .replaceAll("'",'')
+                    .toLocaleLowerCase() || ''
+                    setValue('slug', newSlug)
+            }
+        })
+
+
+        return () => {
+            subscription.unsubscribe()
+        }
+     },[watch, setValue])
+
 
      const onChangeSize = ( size: string ) => {
         
@@ -54,8 +74,31 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
         }
      }
 
+    const onNewTag = () => {
+        
+        const newTag = newTagValue.slice(0, -1).trim().toLocaleLowerCase()
+
+        if(newTag.trim()===''){ return setNewTagValue('') }
+
+
+       const currentTags = getValues('tags')
+       
+        if(currentTags.includes(newTag)){ return setNewTagValue('') }
+     
+        setValue( 'tags', [...currentTags, newTag ], { shouldValidate: true } )
+        setNewTagValue('')
+
+    }
+
     const onDeleteTag = ( tag: string ) => {
 
+        const currentTags = getValues('tags')
+
+        if( currentTags.includes(tag) ){
+            const sizesTags = currentTags.filter( t => t !== tag )  
+            setValue( 'tags', [ ...sizesTags ], { shouldValidate: true } )   
+        }
+        
     }
 
 
@@ -212,12 +255,15 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                             error={ !!errors.slug }
                             helperText={ errors.slug?.message }
                         />
-
+                        {/* TODO: */}
                         <TextField
                             label="Etiquetas"
                             variant="filled"
                             fullWidth 
                             sx={{ mb: 1 }}
+                            value={newTagValue}
+                            onChange={ ({ target }) => setNewTagValue(target.value) }
+                            onKeyUp = { ({ code })=> code === 'Comma' ? onNewTag() : undefined }
                             helperText="Presiona [spacebar] para agregar"
                         />
                         
@@ -230,7 +276,7 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                         }}
                         component="ul">
                             {
-                                product.tags.map((tag) => {
+                                getValues('tags').map((tag) => {
 
                                 return (
                                     <Chip
