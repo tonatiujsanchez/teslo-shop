@@ -8,6 +8,7 @@ import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons
 import { dbProducts } from '../../../database';
 import { AdminLayout } from '../../../components/layouts'
 import { IProduct } from '../../../interfaces';
+import { tesloApi } from '../../../api';
 
 
 const validTypes  = ['shirts','pants','hoodies','hats']
@@ -39,6 +40,7 @@ interface Props {
 const ProductAdminPage:FC<Props> = ({ product }) => {
 
     const [newTagValue, setNewTagValue] = useState('')
+    const [isSaving, setIsSaving] = useState(false)
 
      const { register, handleSubmit, formState:{ errors }, getValues, setValue, watch } = useForm<FormData>({
         defaultValues: product
@@ -103,7 +105,35 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
 
 
     const onSubmitForm = async( formData: FormData ) => {
-        console.log(formData)
+
+        if( formData.images.length < 2 ){
+            return alert('Se requeren mínimo 2 imagenes')
+        }
+
+        setIsSaving(true)
+
+        try {
+            const { data } = await tesloApi({
+                url: '/admin/products',
+                method: 'PUT',  //Si existe in _id ? actualizar : crear
+                data: formData
+            })
+
+            console.log({ formData });
+            
+            if(!formData._id){
+                //TODO: Recargar el Navegador
+            }else{
+                setIsSaving(false)
+            }
+            
+        } catch (error) {
+            console.log(error);
+            setIsSaving(false)
+        }
+
+
+
     }
 
     return (
@@ -119,6 +149,7 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                         startIcon={ <SaveOutlined /> }
                         sx={{ width: '150px' }}
                         type="submit"
+                        disabled={ isSaving}
                         >
                         Guardar
                     </Button>
