@@ -19,7 +19,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
             return updateProduct( req, res )
 
         case 'POST':
-            return 
+            return createProduct( req, res )
     
         default:
             return res.status(400).json({ message: 'Endpoint NO existe' })
@@ -68,6 +68,42 @@ const updateProduct = async(req: NextApiRequest, res: NextApiResponse<Data>) => 
         await db.disconnect()
 
         return res.status(200).json( product )
+
+    } catch (error) {
+        console.log(error);
+        await db.disconnect()
+        return res.status(500).json({ message: 'Hubo un error inesperado, revisar la consola del servidor' })
+    }
+
+}
+
+const createProduct = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
+    const {
+        images = []
+    } = req.body as IProduct
+
+    if( images.length < 2 ){
+        return res.status(400).json({ message: 'Son necesarias al menos 2 imagenes' })
+   }
+
+    //TODO: posiblemente tendremos un localhost:300/product/asdasd.jpg
+
+    try {
+        
+        await db.connect()
+
+        const  productInDB = await Product.findOne({ slug: req.body.slug })
+
+        if(productInDB){
+            await db.disconnect()
+            return res.status(400).json({ message: 'Ya existe un prodcuto con ese slug' })
+        }
+
+        const product = new Product( req.body )
+        await product.save()
+        await db.disconnect()
+
+        return res.status(201).json(product)
 
     } catch (error) {
         console.log(error);
