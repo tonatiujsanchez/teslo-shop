@@ -110,8 +110,8 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
     }
 
 
-    const onFilesSelected = async( { target }: ChangeEvent<HTMLInputElement> ) => {
-        
+    const onFilesSelected = async( { target }: ChangeEvent<HTMLInputElement> ) => {     
+
         if( !target.files || target.files.length === 0 ){
             console.log( target.files );
             return
@@ -119,22 +119,31 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
         
         try {
             
-            for (const file of target.files) {
-                
+            for( const file of target.files ) {
+                                
                 const formData = new FormData()
                 formData.append('file', file)
-                    
-                const { data } = await tesloApi.post<{message: string}>('/admin/upload', formData)
+                
+                
+                const { data } = await tesloApi.post<{ message: string }>('/admin/upload', formData)
 
-                console.log(data);
+                console.log(data.message);
+
+                setValue('images', [...getValues('images'), data.message], { shouldValidate: true })
                 
             }
             
         } catch (error) {
+
             console.log({ error });
-            
+
         }
         
+    }
+
+    const onDeleteImage = ( image: string ) => {
+        const imagesUpdated = getValues('images').filter( img => img !== image )
+        setValue('images', [ ...imagesUpdated ], { shouldValidate: true })
     }
 
 
@@ -377,25 +386,33 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                                 onChange={ onFilesSelected }
                             />
 
-                            <Chip 
-                                label="Es necesario al 2 imagenes"
-                                color='error'
-                                variant='outlined'
-                            />
+                            {
+                                getValues('images').length < 2 &&
+                                <Chip 
+                                    label="Es necesario al 2 imagenes"
+                                    color='error'
+                                    variant='outlined'
+                                    sx={{ mb: 3 }}
+                                />
+                            }
 
                             <Grid container spacing={2}>
                                 {
-                                    product.images.map( img => (
+                                    getValues('images').map( img => (
                                         <Grid item xs={4} sm={3} key={img}>
                                             <Card>
                                                 <CardMedia 
                                                     component='img'
                                                     className='fadeIn'
-                                                    image={ `/products/${ img }` }
+                                                    image={ img }
                                                     alt={ img }
                                                 />
                                                 <CardActions>
-                                                    <Button fullWidth color="error">
+                                                    <Button 
+                                                        onClick={ ()=> onDeleteImage(img) }
+                                                        fullWidth
+                                                        color="error"
+                                                    >
                                                         Borrar
                                                     </Button>
                                                 </CardActions>

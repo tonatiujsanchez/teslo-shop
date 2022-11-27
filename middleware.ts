@@ -93,7 +93,8 @@ export const config = {
     matcher: [
         '/checkout/:path*',
         '/admin/:path*',
-        '/api/admin/:path*',
+        // '/api/admin/:path*',
+        '/((?!api\/)/admin/:path.*)'
     ]
 }
 

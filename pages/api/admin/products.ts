@@ -4,6 +4,11 @@ import { IProduct } from '../../../interfaces'
 import { Product } from '../../../models'
 import { isValidObjectId } from 'mongoose';
 
+import { v2 as cloudinary } from 'cloudinary'
+cloudinary.config( process.env.CLOUDINARY_URL || '' )
+
+
+
 type Data = 
 | { message: string }
 | IProduct[]
@@ -32,9 +37,15 @@ const getProducts = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
     const products = await Product.find().sort({ title: 'asc' }).lean()
     await db.disconnect()
 
-    //TODO: Actualizar la imagenes
+    const updatedProducts = products.map(( product )=> {
 
-    return res.status(200).json(products)
+        product.images = product.images.map( image => {
+            return image.includes('http') ? image : `${ process.env.HOST_NAME }/products/${ image }`
+        })
+        return product
+    })
+
+    return res.status(200).json(updatedProducts)
 }
 
 
@@ -50,7 +61,6 @@ const updateProduct = async(req: NextApiRequest, res: NextApiResponse<Data>) => 
          return res.status(400).json({ message: 'Son necesarias al menos 2 imagenes' })
     }
 
-    //TODO: posiblemente tendremos un localhost:300/product/asdasd.jpg
     
     try {
         await db.connect()
@@ -61,7 +71,16 @@ const updateProduct = async(req: NextApiRequest, res: NextApiResponse<Data>) => 
             return res.status(400).json({ message: 'No existe un producto con ese ID' })
         }
 
-        // TODO: Eliminar imagenes del Clouddinary
+        product.images.forEach( async( img )=>{
+            if( !images.includes(img) ){
+                // Borrar imagen de Cloudinary
+                const [ fileId, extencion ] = img.substring( img.lastIndexOf('/') + 1 ).split('.')
+                console.log({fileId, extencion});
+
+                await cloudinary.uploader.destroy( `${process.env.CLOUDINARY_FOLDER}/${fileId}` )
+                
+            }
+        })
 
         await product.update( req.body )
 
@@ -85,8 +104,6 @@ const createProduct = async(req: NextApiRequest, res: NextApiResponse<Data>) => 
     if( images.length < 2 ){
         return res.status(400).json({ message: 'Son necesarias al menos 2 imagenes' })
    }
-
-    //TODO: posiblemente tendremos un localhost:300/product/asdasd.jpg
 
     try {
         

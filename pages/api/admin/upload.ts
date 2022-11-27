@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import formidable from 'formidable'
-import fs from 'fs'
+// import fs from 'fs'
 
 import { v2 as cloudinary } from 'cloudinary'
 cloudinary.config( process.env.CLOUDINARY_URL || '' )
@@ -32,14 +32,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponse<Data>)
 
 const saveFile = async( file: formidable.File ): Promise<string> => {
     
-    
     // const data = fs.readFileSync( file.filepath )
     // fs.writeFileSync(`./public/${ file.originalFilename }`, data)
     // fs.unlinkSync( file.filepath ) //Elimina el archivo temp
-
-    const { secure_url } = await cloudinary.uploader.upload(file.filepath)
-    console.log(secure_url)
-    
+ 
+    const { secure_url } = await cloudinary.uploader.upload(file.filepath, { folder: process.env.CLOUDINARY_FOLDER })    
     return secure_url
 }
 
@@ -55,7 +52,7 @@ const parseFiles = async( req:NextApiRequest ):Promise<string> => {
             if( err ){
                 return reject(err)
             }
-
+            
             const filePath = await saveFile( files.file as formidable.File )
             resolve(filePath)
         })
@@ -67,9 +64,17 @@ const parseFiles = async( req:NextApiRequest ):Promise<string> => {
 
 const uploadImage = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
 
-    const imageUrl = await parseFiles(req)
+    try {
+
+        const imageUrl = await parseFiles(req)
+        return res.status(200).json({ message: imageUrl })
+        
+    } catch (error) {
+        
+    }
+
+
     
 
-    return res.status(200).json({ message: imageUrl })
 
 }
