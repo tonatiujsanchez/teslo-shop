@@ -94,7 +94,7 @@ export const config = {
         '/checkout/:path*',
         '/admin/:path*',
         // '/api/admin/:path*',
-        // '/((?!api\/)/admin/:path.*)'
+        '/((?!api\/)/admin/:path.*)'
     ]
 }
 
