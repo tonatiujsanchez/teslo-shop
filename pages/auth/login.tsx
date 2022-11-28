@@ -33,9 +33,7 @@ const LoginPage = () => {
     const [providers, setProviders] = useState<any>({})
 
     useEffect(()=>{
-        getProviders().then( prov =>{
-            console.log({prov});
-            
+        getProviders().then( prov =>{            
             setProviders(prov)
         })
     },[])

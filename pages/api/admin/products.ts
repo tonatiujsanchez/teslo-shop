@@ -75,8 +75,7 @@ const updateProduct = async(req: NextApiRequest, res: NextApiResponse<Data>) => 
             if( !images.includes(img) ){
                 // Borrar imagen de Cloudinary
                 const [ fileId, extencion ] = img.substring( img.lastIndexOf('/') + 1 ).split('.')
-                console.log({fileId, extencion});
-
+                
                 await cloudinary.uploader.destroy( `${process.env.CLOUDINARY_FOLDER}/${fileId}` )
                 
             }

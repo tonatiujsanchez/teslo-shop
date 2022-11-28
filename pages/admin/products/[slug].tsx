@@ -113,7 +113,6 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
     const onFilesSelected = async( { target }: ChangeEvent<HTMLInputElement> ) => {     
 
         if( !target.files || target.files.length === 0 ){
-            console.log( target.files );
             return
         }
         
@@ -126,8 +125,6 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                 
                 
                 const { data } = await tesloApi.post<{ message: string }>('/admin/upload', formData)
-
-                console.log(data.message);
 
                 setValue('images', [...getValues('images'), data.message], { shouldValidate: true })
                 
@@ -161,8 +158,6 @@ const ProductAdminPage:FC<Props> = ({ product }) => {
                 method: formData._id ? 'PUT' : 'POST',  //Si existe in _id ? actualizar : crear
                 data: formData
             })
-
-            console.log({ formData });
             
             if(!formData._id){
                 router.replace(`/admin/products/${ formData.slug }`)
