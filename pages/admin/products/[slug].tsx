@@ -9,7 +9,7 @@ import { DriveFileRenameOutline, SaveOutlined, UploadOutlined } from '@mui/icons
 import { dbProducts } from '../../../database';
 import { AdminLayout } from '../../../components/layouts'
 import { IProduct } from '../../../interfaces';
-import { tesloApi } from '../../../api';
+import { tesloApi } from '../../../apis';
 import { Product } from '../../../models';
 
 

@@ -12,7 +12,7 @@ import { ShopLayout } from '../../components/layouts';
 import { CartList, OrderSummary } from '../../components/cart';
 import { dbOrders } from '../../database';
 import { IOrder, IPaypal } from '../../interfaces';
-import { tesloApi } from '../../api';
+import { tesloApi } from '../../apis';
 
 
 interface Props {

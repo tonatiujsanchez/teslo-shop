@@ -7,7 +7,7 @@ import { CartContext, cartReducer } from './';
 
 import { ICartProduct, IOrder, ShippingAddress } from '../../interfaces';
 import { countries } from "../../utils"
-import { tesloApi } from '../../api';
+import { tesloApi } from '../../apis';
 
 interface Props {
     children: JSX.Element
