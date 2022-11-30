@@ -7,5 +7,5 @@ type Data = {
 }
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
-    res.status(401).json({ message: 'No Autorizado' })
+    return res.status(401).json({ message: 'No Autorizado' })
 }

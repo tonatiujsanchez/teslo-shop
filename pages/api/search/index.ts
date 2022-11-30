@@ -6,5 +6,5 @@ type Data = {
 
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
 
-    res.status(400).json({ message: 'Debe de especificar el query de la búsqueda' })
+    return res.status(400).json({ message: 'Debe de especificar el query de la búsqueda' })
 }

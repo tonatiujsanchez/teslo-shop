@@ -70,7 +70,9 @@ const uploadImage = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
         return res.status(200).json({ message: imageUrl })
         
     } catch (error) {
-        
+        console.log(error);
+        return res.status(500).json({ message: 'Hubo un error inesperado, revisar la consola del servidor' })
+
     }
 
 

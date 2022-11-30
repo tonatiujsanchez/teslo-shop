@@ -108,7 +108,7 @@ const createProduct = async(req: NextApiRequest, res: NextApiResponse<Data>) => 
         
         await db.connect()
 
-        const  productInDB = await Product.findOne({ slug: req.body.slug })
+        const productInDB = await Product.findOne({ slug: req.body.slug })
 
         if(productInDB){
             await db.disconnect()

@@ -45,6 +45,6 @@ const searchProducts = async(req: NextApiRequest, res: NextApiResponse<Data>) =>
     await db.disconnect()    
 
 
-    res.status(200).json(products)
+    return res.status(200).json(products)
 
 }

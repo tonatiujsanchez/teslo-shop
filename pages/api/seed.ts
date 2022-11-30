@@ -30,5 +30,5 @@ export default async function handle(req: NextApiRequest, res: NextApiResponse<D
 
     await db.disconnect()
 
-    res.status(200).json({ message: 'Proceso realizado correctamente' })
+    return res.status(200).json({ message: 'Proceso realizado correctamente' })
 }
