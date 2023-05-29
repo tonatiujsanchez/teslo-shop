@@ -6,7 +6,6 @@ import { isValidObjectId } from "mongoose"
 import { Order } from '../../../models'
 import { db } from '../../../database'
 import { IPaypal } from '../../../interfaces'
-import { getSession } from 'next-auth/react'
 import { isValidToken } from '../../../utils/jwt'
 
 type Data = {

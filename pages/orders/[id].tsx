@@ -2,7 +2,6 @@ import { useState } from 'react';
 
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router';
-import { getSession } from 'next-auth/react';
 import { PayPalButtons } from '@paypal/react-paypal-js'
 
 import { Box, Card, CardContent, Divider, Grid, Typography, Chip, CircularProgress } from '@mui/material';

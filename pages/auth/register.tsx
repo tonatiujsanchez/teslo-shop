@@ -14,7 +14,6 @@ import { AuthLayout } from "../../components/layouts"
 import { validations } from '../../utils';
 import { useRouter } from 'next/router';
 
-// import { getSession, signIn } from "next-auth/react"
 import { isValidToken } from '../../utils/jwt';
 
 
