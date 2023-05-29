@@ -32,11 +32,11 @@ const LoginPage = () => {
 
     const [providers, setProviders] = useState<any>({})
 
-    useEffect(()=>{
-        // getProviders().then( prov =>{            
-        //     setProviders(prov)
-        // })
-    },[])
+    // useEffect(()=>{
+    //     getProviders().then( prov =>{            
+    //         setProviders(prov)
+    //     })
+    // },[])
 
 
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>()
@@ -61,10 +61,6 @@ const LoginPage = () => {
 
         const destination = router.query.p?.toString() || '/'
         router.replace(destination)
-
-
-        // await signIn('credentials',{ email, password })
-
     }
 
     return (
@@ -171,46 +167,36 @@ const LoginPage = () => {
     )
 }
 
-// You should use getServerSideProps when:
-// - Only if you need to pre-render a page whose data must be fetched at request time
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-
-    // const session = await getSession({ req })
-
+// export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
     
-    try {
+//     try {
+//         const { tesloshop_token = '' } = req.cookies
+//         const idUser = await isValidToken(tesloshop_token)
+    
+//         const { p = '/' } = query
+    
+//         if( idUser ){
+//             return {
+//                 redirect: {
+//                     destination: p.toString(),
+//                     permanent: false
+//                 }
+//             }
+//         }
+//     } catch (error) {
         
-        const { tesloshop_token = '' } = req.cookies
-        const idUser = await isValidToken(tesloshop_token)
-    
-        const { p = '/' } = query
-    
-        if( idUser ){
-            return {
-                redirect: {
-                    destination: p.toString(),
-                    permanent: false
-                }
-            }
-        }
-
-    } catch (error) {
-        
-        return {
-            props: {
+//         return {
+//             props: {
                 
-            }
-        }
-    }
-
-    return {
-        props: {
+//             }
+//         }
+//     }
+//     return {
+//         props: {
             
-        }
-    }
-
-
-}
+//         }
+//     }
+// }
 
 export default LoginPage

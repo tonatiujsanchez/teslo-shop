@@ -63,10 +63,6 @@ const RegisterPage = () => {
 
         const destination = router.query.p?.toString() || '/'
         router.replace(destination)
-
-        // await signIn('credentials',{ email, password })
-
-
     }
 
     return (
@@ -177,40 +173,36 @@ const RegisterPage = () => {
     )
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+// export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
 
-    // const session = await getSession({ req })
-
-
-    try {        
-            const { tesloshop_token = '' } = req.cookies
-            const idUser = await isValidToken(tesloshop_token)
+//     try {        
+//             const { tesloshop_token = '' } = req.cookies
+//             const idUser = await isValidToken(tesloshop_token)
         
-            const { p = '/' } = query
+//             const { p = '/' } = query
         
-            if( idUser ){
-                return {
-                    redirect: {
-                        destination: p.toString(),
-                        permanent: false
-                    }
-                }
-            }
+//             if( idUser ){
+//                 return {
+//                     redirect: {
+//                         destination: p.toString(),
+//                         permanent: false
+//                     }
+//                 }
+//             }
         
-    } catch (error) {
-        return {
-            props: {
+//     } catch (error) {
+//         return {
+//             props: {
                 
-            }
-        }
-    }
-
-    return {
-        props: {
+//             }
+//         }
+//     }
+//     return {
+//         props: {
             
-        }
-    }
-}
+//         }
+//     }
+// }
 
 
 export default RegisterPage
