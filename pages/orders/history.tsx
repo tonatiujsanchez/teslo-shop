@@ -7,6 +7,7 @@ import { ShopLayout } from '../../components/layouts/ShopLayout';
 import { getSession } from 'next-auth/react';
 import { dbOrders } from '../../database';
 import { IOrder } from '../../interfaces/order';
+import { isValidToken } from '../../utils/jwt';
 
 
 const columns: GridColDef[] = [
@@ -78,9 +79,15 @@ const HistoryPage:NextPage<Props> = ({ orders }) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
 
-    const session:any = await getSession({ req })
+    // const session:any = await getSession({ req })
 
-    if(!session){
+    let idUser = ''
+    try {
+        
+        const { tesloshop_token = '' } = req.cookies
+        idUser = await isValidToken(tesloshop_token)
+        
+    } catch (error) {
         return {
             redirect: {
                 destination:`/auth/login?p=/orders/history`,
@@ -89,7 +96,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
         }
     }
 
-    const orders = await dbOrders.getOrdersByUser( session.user._id )
+    const orders = await dbOrders.getOrdersByUser( idUser )
 
 
     return {

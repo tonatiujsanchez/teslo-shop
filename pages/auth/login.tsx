@@ -10,12 +10,13 @@ import { ErrorOutline } from '@mui/icons-material';
 
 import { useForm } from "react-hook-form";
 
-// import useAuth from '../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
 
 import { AuthLayout } from "../../components/layouts"
 import { validations } from '../../utils';
 
-import { getSession, signIn, getProviders } from "next-auth/react"
+// import { getSession, signIn, getProviders } from "next-auth/react"
+import { isValidToken } from '../../utils/jwt';
 
 type FormData = {
     email: string,
@@ -33,14 +34,14 @@ const LoginPage = () => {
     const [providers, setProviders] = useState<any>({})
 
     useEffect(()=>{
-        getProviders().then( prov =>{            
-            setProviders(prov)
-        })
+        // getProviders().then( prov =>{            
+        //     setProviders(prov)
+        // })
     },[])
 
 
     const { register, handleSubmit, formState: { errors } } = useForm<FormData>()
-    // const { loginUser } = useAuth()
+    const { loginUser } = useAuth()
 
 
     const onLoginUser = async ({ email, password }: FormData) => {
@@ -48,22 +49,22 @@ const LoginPage = () => {
         setShowError(false)
         setLoading(true)
 
-        // const isValidLogin = await loginUser(email, password)
+        const isValidLogin = await loginUser(email, password)
 
-        // if( !isValidLogin ){
-        //     setLoading(false)
-        //     setShowError(true)
-        //     setTimeout(() => setShowError(false), 3000)
-        //     return
-        // }
+        if( !isValidLogin ){
+            setLoading(false)
+            setShowError(true)
+            setTimeout(() => setShowError(false), 3000)
+            return
+        }
 
-        // setLoading(false)
+        setLoading(false)
 
-        // const destination = router.query.p?.toString() || '/'
-        // router.replace(destination)
+        const destination = router.query.p?.toString() || '/'
+        router.replace(destination)
 
 
-        await signIn('credentials',{ email, password })
+        // await signIn('credentials',{ email, password })
 
     }
 
@@ -155,7 +156,7 @@ const LoginPage = () => {
                                             fullWidth
                                             color='primary'
                                             sx={{ mb:1 }}
-                                            onClick={()=> signIn(provider.id) } 
+                                            // onClick={()=> signIn(provider.id) } 
                                         >
                                             { provider.name }
                                         </Button>
@@ -176,15 +177,30 @@ const LoginPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
 
-    const session = await getSession({ req })
+    // const session = await getSession({ req })
 
-    const { p = '/' } = query
+    
+    try {
+        
+        const { tesloshop_token = '' } = req.cookies
+        const idUser = await isValidToken(tesloshop_token)
+    
+        const { p = '/' } = query
+    
+        if( idUser ){
+            return {
+                redirect: {
+                    destination: p.toString(),
+                    permanent: false
+                }
+            }
+        }
 
-    if( session ){
+    } catch (error) {
+        
         return {
-            redirect: {
-                destination: p.toString(),
-                permanent: false
+            props: {
+                
             }
         }
     }
@@ -194,6 +210,8 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             
         }
     }
+
+
 }
 
 export default LoginPage

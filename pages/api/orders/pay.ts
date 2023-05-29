@@ -7,6 +7,7 @@ import { Order } from '../../../models'
 import { db } from '../../../database'
 import { IPaypal } from '../../../interfaces'
 import { getSession } from 'next-auth/react'
+import { isValidToken } from '../../../utils/jwt'
 
 type Data = {
     message: string
@@ -62,11 +63,21 @@ const getPaypalBearerToken = async():Promise<string | null> => {
 const payOrder = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
 
     // Verificar autenticación
-    const session: any = await getSession({ req })
+    // const session: any = await getSession({ req })
 
-    if( !session ){
+    // if( !session ){
+    //     return res.status(401).json({ message: 'Este proceso requiere autenticación' })
+    // }
+
+    let idUser = ''
+    try {
+        const { tesloshop_token = '' } = req.cookies
+        idUser = await isValidToken(tesloshop_token)
+    } catch (error) {
         return res.status(401).json({ message: 'Este proceso requiere autenticación' })
     }
+    
+
     
     const { transactionId = '', orderId = '' } = req.body
     

@@ -32,7 +32,7 @@ export const AuthProvider: FC<Props> = ({ children }) => {
 
 
     const [state, dispatch] = useReducer(authReducer, AUTH_INITIAL_STATE)
-    // const router = useRouter()
+    const router = useRouter()
     const { data, status } = useSession()
 
     useEffect(()=>{
@@ -42,9 +42,9 @@ export const AuthProvider: FC<Props> = ({ children }) => {
         }   
     },[status, data])
 
-    // useEffect(()=>{
-    //     checkToken()
-    // },[])
+    useEffect(()=>{
+        checkToken()
+    },[])
 
     const checkToken = async() => {
 
@@ -131,8 +131,8 @@ export const AuthProvider: FC<Props> = ({ children }) => {
         
         signOut()
 
-        // router.reload()
-        // Cookies.remove('tesloshop_token')
+        router.reload()
+        Cookies.remove('tesloshop_token')
     }
 
 

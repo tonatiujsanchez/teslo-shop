@@ -5,6 +5,7 @@ import { getSession } from 'next-auth/react'
 import { db } from '../../../database'
 import { IOrder } from '../../../interfaces'
 import { Product, Order } from '../../../models';
+import { isValidToken } from '../../../utils/jwt';
 
 
 type Data = 
@@ -29,10 +30,18 @@ const createOrder = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
     const { orderItems, total } = req.body as IOrder
 
     // Verificar la sesion del usuario
-    const session: any = await getSession({ req })
-    if( !session ){
+    let idUser = ''
+    try {
+        const { tesloshop_token = '' } = req.cookies
+        idUser = await isValidToken(tesloshop_token)
+    } catch (error) {
         return res.status(401).json({ message: 'Este proceso requiere autenticación' })
     }
+    
+    // const session: any = await getSession({ req })
+    // if( !session ){
+    //     return res.status(401).json({ message: 'Este proceso requiere autenticación' })
+    // }
 
     // obtener ids de productos
     const productsIds = orderItems.map( product => product._id )
@@ -66,7 +75,7 @@ const createOrder = async(req: NextApiRequest, res: NextApiResponse<Data>) => {
         }
         
         // Todo bien hasta este punto: Creamos la orden
-        const userId = session.user._id
+        const userId = idUser
         const newOrder = new Order({
                 ...req.body, 
                 isPaid: false, 
