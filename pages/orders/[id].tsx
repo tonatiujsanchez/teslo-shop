@@ -13,6 +13,7 @@ import { CartList, OrderSummary } from '../../components/cart';
 import { dbOrders } from '../../database';
 import { IOrder, IPaypal } from '../../interfaces';
 import { tesloApi } from '../../apis';
+import { isValidToken } from '../../utils/jwt';
 
 
 interface Props {
@@ -158,9 +159,15 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
 
     const { id = '' } = query 
 
-    const session:any = await getSession({ req })
+    // const session:any = await getSession({ req })
 
-    if( !session ){
+    let idUser = ''
+    try {
+
+        const { tesloshop_token = '' } = req.cookies
+        idUser = await isValidToken(tesloshop_token)
+        
+    } catch (error) {
         return {
             redirect: {
                 destination:`/auth/login?p=/orders/${ id }`,
@@ -168,6 +175,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             }
         }
     }
+
 
     const order = await dbOrders.getOrderById( id.toString() )
 
@@ -180,7 +188,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
         }
     }
 
-    if( order.user !== session.user._id ){
+    if( order.user !== idUser ){
         return {
             redirect: {
                 destination:`/orders/history`,

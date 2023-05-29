@@ -18,7 +18,7 @@ export const ProductCard: FC<Props> = ({ product }) => {
             ? product.images[1]
             : product.images[0]
     },[isHovered, product.images])
-
+   
 
     return (
         <Grid 

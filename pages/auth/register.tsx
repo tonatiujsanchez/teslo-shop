@@ -14,7 +14,8 @@ import { AuthLayout } from "../../components/layouts"
 import { validations } from '../../utils';
 import { useRouter } from 'next/router';
 
-import { getSession, signIn } from "next-auth/react"
+// import { getSession, signIn } from "next-auth/react"
+import { isValidToken } from '../../utils/jwt';
 
 
 type FormData = {
@@ -61,10 +62,10 @@ const RegisterPage = () => {
         setLoading(false)
         setErrorMessage('')
 
-        // const destination = router.query.p?.toString() || '/'
-        // router.replace(destination)
+        const destination = router.query.p?.toString() || '/'
+        router.replace(destination)
 
-        await signIn('credentials',{ email, password })
+        // await signIn('credentials',{ email, password })
 
 
     }
@@ -179,15 +180,28 @@ const RegisterPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
 
-    const session = await getSession({ req })
+    // const session = await getSession({ req })
 
-    const { p = '/' } = query
 
-    if( session ){
+    try {        
+            const { tesloshop_token = '' } = req.cookies
+            const idUser = await isValidToken(tesloshop_token)
+        
+            const { p = '/' } = query
+        
+            if( idUser ){
+                return {
+                    redirect: {
+                        destination: p.toString(),
+                        permanent: false
+                    }
+                }
+            }
+        
+    } catch (error) {
         return {
-            redirect: {
-                destination: p.toString(),
-                permanent: false
+            props: {
+                
             }
         }
     }

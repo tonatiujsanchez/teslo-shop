@@ -75,7 +75,7 @@ const registerUser = async( req:NextApiRequest, res:NextApiResponse<Data>  ) => 
     
     const { _id, role } = newUser   
 
-    const token = jwt.signToken( _id, email )  //jwt
+    const token = jwt.signToken( _id, email, role )  //jwt
 
     return res.status(200).json({
         token,
