@@ -15,7 +15,6 @@ import useAuth from '../../hooks/useAuth';
 import { AuthLayout } from "../../components/layouts"
 import { validations } from '../../utils';
 
-// import { getSession, signIn, getProviders } from "next-auth/react"
 import { isValidToken } from '../../utils/jwt';
 
 type FormData = {
