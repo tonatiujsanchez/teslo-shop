@@ -7,6 +7,7 @@ import { ShopLayout } from '../../components/layouts/ShopLayout';
 import { dbOrders } from '../../database';
 import { IOrder } from '../../interfaces/order';
 import { isValidToken } from '../../utils/jwt';
+import * as jose from 'jose';
 
 
 const columns: GridColDef[] = [
@@ -80,12 +81,28 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
 
     // const session:any = await getSession({ req })
 
+    const { tesloshop_token: token } = req.cookies
+
+    if (!token) {            
+        return {
+            redirect: {
+                destination:`/auth/login?p=/orders/history`,
+                permanent: false
+            }
+        }
+    }
+
     let idUser = ''
     try {
         
-        const { tesloshop_token = '' } = req.cookies
-        idUser = await isValidToken(tesloshop_token)
+        // const { tesloshop_token = '' } = req.cookies
+        // idUser = await isValidToken(tesloshop_token)
+
+        const { payload } = await jose.jwtVerify(token as string, new TextEncoder().encode(process.env.JWT_SECRET_SEED))
+        const { _id } = payload as { _id: string, role: string, email:string }
+        idUser = _id
         
+
     } catch (error) {
         return {
             redirect: {

@@ -153,18 +153,33 @@ const OrderPage:NextPage<Props> = ({ order }) => {
     )
 }
 
+import * as jose from 'jose'
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
 
     const { id = '' } = query 
 
-    // const session:any = await getSession({ req })
+    const { tesloshop_token: token } = req.cookies
+           
+    if (!token) {            
+        return {
+            redirect: {
+                destination:`/auth/login?p=/orders/${ id }`,
+                permanent: false
+            }
+        }
+    }
 
     let idUser = ''
     try {
 
-        const { tesloshop_token = '' } = req.cookies
-        idUser = await isValidToken(tesloshop_token)
+        // const { tesloshop_token = '' } = req.cookies
+        // idUser = await isValidToken(tesloshop_token)
+        
+        const { payload } = await jose.jwtVerify(token as string, new TextEncoder().encode(process.env.JWT_SECRET_SEED))
+        const { _id } = payload as { _id: string, role: string, email:string }
+        idUser = _id
+
         
     } catch (error) {
         return {
