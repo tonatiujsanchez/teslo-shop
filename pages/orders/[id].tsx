@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-import { GetServerSideProps, NextPage } from 'next'
+import { NextPage } from 'next'
 import { useRouter } from 'next/router';
 import { PayPalButtons } from '@paypal/react-paypal-js'
-import { isValidObjectId } from 'mongoose';
-import useSWR from 'swr';
 
 import { Box, Card, CardContent, Divider, Grid, Typography, Chip, CircularProgress } from '@mui/material';
 import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
+
+import axios from 'axios';
 
 import { ShopLayout } from '../../components/layouts';
 import { CartList, OrderSummary } from '../../components/cart';
@@ -17,22 +17,44 @@ import { tesloApi } from '../../apis';
 import { IOrder, IPaypal } from '../../interfaces';
 
 
-interface Props {
-    orderId: string
-}
-
-const OrderPage:NextPage<Props> = ({ orderId }) => {
+const OrderPage:NextPage = () => {
 
     const [isPaying, setIsPaying] = useState(false)
+    const [order, setOrder] = useState<IOrder>()
+    const [loading, setLoading] = useState(true)
+
+
     const router = useRouter()
+    const { id } = router.query
     
-    const { data:order, error } = useSWR<IOrder>(`/api/orders/getOrderById?idOrder=${ orderId }`)
+    const loadOrder = async() => {
 
-    if( !order && !error ) return ( <FullScreenLoading /> ) 
-    if( !order ) return ( <FullScreenLoading /> ) 
+        try {
+            setLoading(true)
+            const { data } = await axios.get(`/api/orders/getOrderById?idOrder=${ id }`)
+            setLoading(false)
+            setOrder(data)
+            
+        } catch (error) {
+            router.replace('/orders/history')
+        }
+        
+    }
 
 
+
+    useEffect(() => {
+        if( id ){ 
+            loadOrder()
+        }
+    }, [id])
+    
+    
+
+    if( loading || !order ) return ( <FullScreenLoading /> ) 
+    
     const { shippingAddress } = order
+
 
     const onOrderCompleted = async( details:IPaypal.OrderResponseBody ) => {
         if( details.status !== 'COMPLETED' ){
@@ -161,25 +183,5 @@ const OrderPage:NextPage<Props> = ({ orderId }) => {
     )
 }
 
-
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-
-    const { id = '' } = query
-
-    if ( !isValidObjectId(id)) {            
-        return {
-            redirect: {
-                destination:`/orders/history`,
-                permanent: false
-            }
-        }
-    }
-
-    return {
-        props: {
-            orderId: id
-        }
-    }
-}
 
 export default OrderPage
