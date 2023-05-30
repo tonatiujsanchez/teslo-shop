@@ -12,7 +12,10 @@ export async function middleware( req: NextRequest ) {
 // =============== PROTECCION DE RUTAS - TRADICIONAL ============ 
     const token = req.cookies.get('tesloshop_token')
 
-    if (req.nextUrl.pathname.startsWith('/checkout')) {
+    if (
+        req.nextUrl.pathname.startsWith('/checkout') ||
+        req.nextUrl.pathname.startsWith('/orders')
+    ) {
 
         const { protocol, host, pathname } = req.nextUrl
         
@@ -79,14 +82,13 @@ export async function middleware( req: NextRequest ) {
             return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url))
         }        
     }
-
-
 }
 
 
 export const config = {
     matcher: [
         '/checkout/:path*',
+        '/orders/:path*',
         '/admin/:path*',
         '/api/admin/:path*',
         '/((?!api\/)/admin/:path.*)'
