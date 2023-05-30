@@ -79,7 +79,6 @@ const HistoryPage:NextPage<Props> = ({ orders }) => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
 
-    // const session:any = await getSession({ req })
 
     const { tesloshop_token: token } = req.cookies
 
@@ -94,16 +93,16 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
 
     let idUser = ''
     try {
-        
-        // const { tesloshop_token = '' } = req.cookies
-        // idUser = await isValidToken(tesloshop_token)
-
+    
         const { payload } = await jose.jwtVerify(token as string, new TextEncoder().encode(process.env.JWT_SECRET_SEED))
         const { _id } = payload as { _id: string, role: string, email:string }
         idUser = _id
         
 
     } catch (error) {
+        
+        console.log('History jwtVerify =>', error);
+        
         return {
             redirect: {
                 destination:`/auth/login?p=/orders/history`,

@@ -182,6 +182,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
 
         
     } catch (error) {
+
+        console.log('Order jwtVerify =>', error);
+
         return {
             redirect: {
                 destination:`/auth/login?p=/orders/${ id }`,
