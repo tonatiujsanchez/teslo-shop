@@ -70,10 +70,10 @@ const ProductPage: NextPage<Props> = ({ product }) => {
     return (
         <ShopLayout title={product.title} pageDescription={product.description}>
             <Grid container spacing={3}>
-                <Grid item xs={12} sm={7}>
+                <Grid item xs={12} sm={8}>
                     <ProductSlideshow images={product.images} />
                 </Grid>
-                <Grid item xs={12} sm={5}>
+                <Grid item xs={12} sm={4}>
                     <Box display="flex" flexDirection="column">
                         {/* Titulos */}
                         <Typography variant="h1" component="h1">

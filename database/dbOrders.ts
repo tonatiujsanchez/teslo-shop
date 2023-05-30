@@ -28,9 +28,6 @@ export const getOrderById = async( id:string ):Promise<IOrder | null> => {
         console.log(error);
         return null
     }
-
-
-
 }
 
 
@@ -54,8 +51,4 @@ export const getOrdersByUser = async( userId:string ):Promise<IOrder[] | null> =
         console.log(error);
         return null
     }
-
-
-
-
 }

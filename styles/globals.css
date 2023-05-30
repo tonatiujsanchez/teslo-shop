@@ -40,5 +40,17 @@
   justify-content: center;
   background-size: contain;
   background-position: center;
-  height: 650px;
+  height: 550px;
+}
+
+@media (min-width: 768px){
+  .each-slide > div{
+    height: 750px;
+  }
+}
+
+@media (min-width: 992px){
+  .each-slide > div{
+    height: 850px;
+  }
 }

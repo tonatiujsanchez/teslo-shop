@@ -1,13 +1,14 @@
 import NextLink from 'next/link'
-import { GetServerSideProps, NextPage } from 'next'
+import { NextPage } from 'next'
 import { Chip, Grid, Link, Typography } from '@mui/material';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 
+import useSWR from 'swr';
+
 import { ShopLayout } from '../../components/layouts/ShopLayout';
-import { dbOrders } from '../../database';
-import { IOrder } from '../../interfaces/order';
-import { isValidToken } from '../../utils/jwt';
-import * as jose from 'jose';
+import { FullScreenLoading } from '../../components/ui';
+
+import { IOrder } from '../../interfaces';
 
 
 const columns: GridColDef[] = [
@@ -40,21 +41,25 @@ const columns: GridColDef[] = [
     }
 ]
 
-
-interface Props {
-    orders: IOrder[]
-}
-
-const HistoryPage:NextPage<Props> = ({ orders }) => {
+const HistoryPage:NextPage = () => {
     
+    const { data, error } = useSWR<IOrder[]>(`/api/orders/getOrdersByUser`)
+    
+    if( !data && !error ) return ( <></> ) 
 
-    const rows = orders.map( (order, index) => ({ 
+    if( !data ) return ( <FullScreenLoading /> ) 
+
+
+
+    const rows = data.map( (order, index) => ({ 
         id: index + 1, 
         paid: order.isPaid, 
         fullname: ` ${ order.shippingAddress.firstName } ${ order.shippingAddress.lastName }`, 
         orderId: order._id 
     }) )
     
+
+
 
     return (
         <ShopLayout title={'Historial de ordenes'} pageDescription={'Historial de ordenes del cliente'}>
@@ -72,53 +77,6 @@ const HistoryPage:NextPage<Props> = ({ orders }) => {
                 </Grid>
         </ShopLayout>
     )
-}
-
-// You should use getServerSideProps when:
-// - Only if you need to pre-render a page whose data must be fetched at request time
-
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-
-
-    const { tesloshop_token: token } = req.cookies
-
-    if (!token) {            
-        return {
-            redirect: {
-                destination:`/auth/login?p=/orders/history`,
-                permanent: false
-            }
-        }
-    }
-
-    let idUser = ''
-    try {
-    
-        const { payload } = await jose.jwtVerify(token as string, new TextEncoder().encode(process.env.JWT_SECRET_SEED))
-        const { _id } = payload as { _id: string, role: string, email:string }
-        idUser = _id
-        
-
-    } catch (error) {
-        
-        console.log('History jwtVerify =>', error);
-        
-        return {
-            redirect: {
-                destination:`/auth/login?p=/orders/history`,
-                permanent: false
-            }
-        }
-    }
-
-    const orders = await dbOrders.getOrdersByUser( idUser )
-
-
-    return {
-        props: {
-            orders
-        }
-    }
 }
 
 export default HistoryPage

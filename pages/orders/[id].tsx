@@ -3,26 +3,34 @@ import { useState } from 'react';
 import { GetServerSideProps, NextPage } from 'next'
 import { useRouter } from 'next/router';
 import { PayPalButtons } from '@paypal/react-paypal-js'
+import { isValidObjectId } from 'mongoose';
+import useSWR from 'swr';
 
 import { Box, Card, CardContent, Divider, Grid, Typography, Chip, CircularProgress } from '@mui/material';
 import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
 
 import { ShopLayout } from '../../components/layouts';
 import { CartList, OrderSummary } from '../../components/cart';
-import { dbOrders } from '../../database';
-import { IOrder, IPaypal } from '../../interfaces';
+import { FullScreenLoading } from '../../components/ui';
+
 import { tesloApi } from '../../apis';
-import { isValidToken } from '../../utils/jwt';
+import { IOrder, IPaypal } from '../../interfaces';
 
 
 interface Props {
-    order: IOrder
+    orderId: string
 }
 
-const OrderPage:NextPage<Props> = ({ order }) => {
+const OrderPage:NextPage<Props> = ({ orderId }) => {
 
-    const router = useRouter()
     const [isPaying, setIsPaying] = useState(false)
+    const router = useRouter()
+    
+    const { data:order, error } = useSWR<IOrder>(`/api/orders/getOrderById?idOrder=${ orderId }`)
+
+    if( !order && !error ) return ( <FullScreenLoading /> ) 
+    if( !order ) return ( <FullScreenLoading /> ) 
+
 
     const { shippingAddress } = order
 
@@ -153,50 +161,12 @@ const OrderPage:NextPage<Props> = ({ order }) => {
     )
 }
 
-import * as jose from 'jose'
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
 
-    const { id = '' } = query 
+    const { id = '' } = query
 
-    const { tesloshop_token: token } = req.cookies
-           
-    if (!token) {            
-        return {
-            redirect: {
-                destination:`/auth/login?p=/orders/${ id }`,
-                permanent: false
-            }
-        }
-    }
-
-    let idUser = ''
-    try {
-
-        // const { tesloshop_token = '' } = req.cookies
-        // idUser = await isValidToken(tesloshop_token)
-        
-        const { payload } = await jose.jwtVerify(token as string, new TextEncoder().encode(process.env.JWT_SECRET_SEED))
-        const { _id } = payload as { _id: string, role: string, email:string }
-        idUser = _id
-
-        
-    } catch (error) {
-
-        console.log('Order jwtVerify =>', error);
-
-        return {
-            redirect: {
-                destination:`/auth/login?p=/orders/${ id }`,
-                permanent: false
-            }
-        }
-    }
-
-
-    const order = await dbOrders.getOrderById( id.toString() )
-
-    if( !order ){
+    if ( !isValidObjectId(id)) {            
         return {
             redirect: {
                 destination:`/orders/history`,
@@ -204,20 +174,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
             }
         }
     }
-
-    if( order.user !== idUser ){
-        return {
-            redirect: {
-                destination:`/orders/history`,
-                permanent: false
-            }
-        }
-    }
-
 
     return {
         props: {
-            order
+            orderId: id
         }
     }
 }
