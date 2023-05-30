@@ -19,7 +19,8 @@ export const ProductSlideshow:FC<Props> = ({ images }) => {
                     <div className="each-slide" key={ image }>
                         <div style={{
                             backgroundImage: `url(${ image })`,
-                            backgroundSize: 'cover'
+                            backgroundSize: 'cover',
+                            backgroundRepeat: 'no-repeat',
                         }}>
 
                         </div>
