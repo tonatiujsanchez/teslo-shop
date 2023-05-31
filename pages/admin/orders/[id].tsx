@@ -1,22 +1,53 @@
-import { GetServerSideProps, NextPage } from 'next'
+import { useEffect, useState } from 'react';
+import { NextPage } from 'next'
+import { useRouter } from 'next/router';
 
 import { Box, Card, CardContent, Divider, Grid, Typography, Chip } from '@mui/material';
 import { AirplaneTicketOutlined, CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
 
+import axios from 'axios';
+
 import { AdminLayout } from '../../../components/layouts';
 import { CartList, OrderSummary } from '../../../components/cart';
-import { dbOrders } from '../../../database';
+
 import { IOrder } from '../../../interfaces';
+import { FullScreenLoading } from '../../../components/ui';
 
 
-interface Props {
-    order: IOrder
-}
+const OrderPage:NextPage = () => {
 
-const OrderPage:NextPage<Props> = ({ order }) => {
+    const [order, setOrder] = useState<IOrder>()
+    const [loading, setLoading] = useState(true)
+
+    const router = useRouter()
+    const { id } = router.query
+
+    const loadOrder = async() => {
+
+        try {
+            setLoading(true)
+            const { data } = await axios.get(`/api/orders/getOrderById?idOrder=${ id }`)
+            setLoading(false)
+            setOrder(data)
+            
+        } catch (error) {
+            router.replace('/admin/orders')
+        }
+        
+    }
+
+    useEffect(() => {
+        if( id ){ 
+            loadOrder()
+        }
+    }, [id])
+    
+
+    if( loading || !order ) return ( <FullScreenLoading /> ) 
 
     const { shippingAddress } = order
 
+    
     return (
         <AdminLayout title="Resumen de la orden" subtitle={`Resumen de la orden: ${order._id}`} icon={<AirplaneTicketOutlined />}>
             {
@@ -99,25 +130,5 @@ const OrderPage:NextPage<Props> = ({ order }) => {
 }
 
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-
-    const { id = '' } = query 
-    const order = await dbOrders.getOrderById( id.toString() )
-
-    if( !order ){
-        return {
-            redirect: {
-                destination:`/admin/orders`,
-                permanent: false
-            }
-        }
-    }
-
-    return {
-        props: {
-            order
-        }
-    }
-}
 
 export default OrderPage
