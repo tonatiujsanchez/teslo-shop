@@ -15,8 +15,8 @@ type Data =
 export default function handler(req: NextApiRequest, res: NextApiResponse<Data>) {
     
     switch (req.method) {
+        
         case "GET":
-            
             return getOrderById( req, res );
     
         default:
@@ -70,6 +70,10 @@ const verifyUser = async( req: NextApiRequest, idOrderUser:string ):Promise<bool
     // 2.- verificar que el idUsuario de la sesion coincida con el usuario de la orden
     const { 'tesloshop_token':token } = req.cookies
     const { payload } = await jose.jwtVerify(String( token ), new TextEncoder().encode(process.env.JWT_SECRET_SEED))
+
+    if( payload.role === "admin" ){
+        return true
+    }
 
     if(payload._id === JSON.parse( JSON.stringify( idOrderUser ) )){
         return true

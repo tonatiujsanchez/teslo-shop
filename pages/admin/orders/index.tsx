@@ -3,6 +3,7 @@ import { Chip, Grid } from '@mui/material';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid';
 import { AdminLayout } from '../../../components/layouts';
 import useSWR from 'swr';
+import { FullScreenLoading } from '../../../components/ui';
 import { IOrder, IUser } from '../../../interfaces';
 
 const columns: GridColDef[] = [
@@ -41,7 +42,10 @@ const OrdersPage = () => {
 
     const { data, error } = useSWR<IOrder[]>(`/api/admin/orders`)
 
-    if( !data && !error ) return ( <></> ) 
+    if( !data && !error ) return ( <></> )
+
+    if( !data ) return ( <FullScreenLoading /> ) 
+
 
 
     const rows = data!.map( order => {

@@ -12,6 +12,19 @@ export async function middleware( req: NextRequest ) {
 // =============== PROTECCION DE RUTAS - TRADICIONAL ============ 
     const token = req.cookies.get('tesloshop_token')
 
+
+    if( req.nextUrl.pathname.startsWith('/auth') ){
+
+        const { protocol, host, pathname } = req.nextUrl
+
+        try {
+            await jose.jwtVerify(token as string, new TextEncoder().encode(process.env.JWT_SECRET_SEED))
+            return NextResponse.redirect(`${protocol}//${host}`)
+        } catch (error) {
+            return NextResponse.next()
+        }
+    }
+
     if (
         req.nextUrl.pathname.startsWith('/checkout') ||
         req.nextUrl.pathname.startsWith('/orders')
@@ -82,15 +95,38 @@ export async function middleware( req: NextRequest ) {
             return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url))
         }        
     }
+
+    if (req.nextUrl.pathname.startsWith('/api/orders')) {
+                
+        if (!token) {            
+            return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url))
+        }
+
+        try {
+
+          await jose.jwtVerify(token as string, new TextEncoder().encode(process.env.JWT_SECRET_SEED))
+          return NextResponse.next()
+            
+        } catch (error) {
+            console.log(error)
+            return NextResponse.redirect(new URL('/api/auth/unauthorized', req.url))
+        }        
+    }
+
+
 }
 
 
 export const config = {
     matcher: [
         '/checkout/:path*',
-        '/orders/:path*',
+        '/orders/:path*',  //Proteger la API de orders
+        '/auth/:path*',
+
         '/admin/:path*',
         '/api/admin/:path*',
+        '/api/orders/:path*',
+
         '/((?!api\/)/admin/:path.*)'
     ]
 }
