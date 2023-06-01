@@ -68,7 +68,14 @@ const ProductPage: NextPage<Props> = ({ product }) => {
     }
 
     return (
-        <ShopLayout title={product.title} pageDescription={product.description}>
+        <ShopLayout 
+            title={product.title} 
+            pageDescription={product.description} 
+            imageFullUrl={ product.images[0] }
+            ogType={'product'}
+            ogUrl={`${process.env.NEXT_PUBLIC_HOST_NAME}/product/${ product.slug }`}
+
+        >
             <Grid container spacing={3}>
                 <Grid item xs={12} sm={8}>
                     <ProductSlideshow images={product.images} />

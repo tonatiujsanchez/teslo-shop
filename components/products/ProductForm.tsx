@@ -180,6 +180,7 @@ export const ProductForm: FC<Props> = ({ product }) => {
             if (!formData._id) {
                 router.replace(`/admin/products/${formData.slug}`)
             } else {
+                router.replace(`/admin/products/${formData.slug}`)
                 setIsSaving(false)
             }
 

@@ -1,22 +1,47 @@
-import type { NextPage, GetServerSideProps } from 'next'
+import { useEffect, useState } from 'react'
+import type { NextPage } from 'next'
+import { useRouter } from 'next/router'
 
 import { Box, Typography } from '@mui/material'
 
-import { dbProducts } from '../../database'
-
 import { ShopLayout } from '../../components/layouts'
 import { ProductList } from '../../components/products'
+import { FullScreenLoading } from '../../components/ui'
 
+import { tesloApi } from '../../apis'
 import { IProduct } from '../../interfaces'
 
 
-interface Props {
-    products: IProduct[]
-    foundProducts: boolean
-    query: string
-}
+const SearchPage: NextPage = () => {
 
-const SearchPage: NextPage<Props> = ({ products, foundProducts, query }) => {
+    const [products, setProducts] = useState<IProduct[]>([])
+    const [loadingProducts, setLoadingProducts] = useState(true)
+    const [foundProducts, setFoundProducts] = useState(true)
+
+    const router = useRouter()
+    const { query } = router.query
+
+    
+    const loadProducts = async() => {
+        
+        setLoadingProducts(true)
+        const { data } = await tesloApi(`/search/${query}`)
+        setLoadingProducts(false)
+
+        setProducts(data.products)
+        setFoundProducts(data.foundProducts)
+    }
+
+    useEffect(()=> {
+        if( query ){
+            loadProducts()
+        }
+    },[query])
+
+
+    if( loadingProducts || !query ){
+        return <FullScreenLoading />
+    }
 
     return (
         <ShopLayout title={'Teslo-Shop - Search'} pageDescription={'Encuentra los mejores productos de teslo aqui'}>
@@ -35,45 +60,10 @@ const SearchPage: NextPage<Props> = ({ products, foundProducts, query }) => {
                 
             }
             
-
-
             <ProductList products={products} />
             
         </ShopLayout>
     )
-}
-
-// You should use getServerSideProps when:
-// - Only if you need to pre-render a page whose data must be fetched at request time
-
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-
-    const { query } = params as { query: string }
-
-    if(query.length === 0){
-        return {
-            redirect: {
-                destination: '/',
-                permanent: true
-            }
-        }
-    }
-
-    let products = await dbProducts.getProductsByTerm(query)
-    const foundProducts:boolean = products.length > 0
-
-    // retornar otros productos
-    if(!foundProducts){
-        products = await dbProducts.gelAllProducts()
-    }
-
-    return {
-        props: {
-            products,
-            foundProducts,
-            query
-        }
-    }
 }
 
 
