@@ -5,8 +5,7 @@ import { useRouter } from 'next/router';
 import { PayPalButtons } from '@paypal/react-paypal-js'
 
 import { Box, Card, CardContent, Divider, Grid, Typography, Chip, CircularProgress } from '@mui/material';
-import { CreditCardOffOutlined, CreditScoreOutlined } from '@mui/icons-material';
-
+import { CreditCardOffOutlined, CreditScoreOutlined, Person, LockOpen } from '@mui/icons-material';
 import axios from 'axios';
 
 import { ShopLayout } from '../../components/layouts';
@@ -145,27 +144,43 @@ const OrderPage:NextPage = () => {
                                                 />
                                             )
                                             :(
-                                                <PayPalButtons
-                                                    createOrder={(data, actions) => {
-                                                        
-                                                        return actions.order.create({
-                                                            purchase_units: [
-                                                                {   
-                                                                    amount: {
-                                                                        value: (order.total).toString(),
+                                                <>
+                                                    <PayPalButtons
+                                                        createOrder={(data, actions) => {
+                                                            
+                                                            return actions.order.create({
+                                                                purchase_units: [
+                                                                    {   
+                                                                        amount: {
+                                                                            value: (order.total).toString(),
+                                                                        },
                                                                     },
-                                                                },
-                                                            ],
-                                                        });
-                                                    }}
-            
-                                                    onApprove={(data, actions) => {
-                                                        
-                                                        return actions.order!.capture().then((details) => {
-                                                            onOrderCompleted( details )
-                                                        });
-                                                    }}
-                                                />
+                                                                ],
+                                                            });
+                                                        }}
+                
+                                                        onApprove={(data, actions) => {
+                                                            
+                                                            return actions.order!.capture().then((details) => {
+                                                                onOrderCompleted( details )
+                                                            });
+                                                        }}
+                                                    />
+                                                    <Box>
+                                                        <Chip 
+                                                            sx={{ mt: 2, mb:1, width:'100%' }}
+                                                            label="Usuario de prueba: sb-bqzyo20564624@personal.example.com"
+                                                            variant='outlined'
+                                                            icon={ <Person /> }
+                                                        />
+                                                        <Chip 
+                                                            sx={{ width:'100%' }}
+                                                            label="Password: 123456789"
+                                                            variant='outlined'
+                                                            icon={ <LockOpen /> }
+                                                        />
+                                                    </Box>
+                                                </>
                                             )
 
                                        
